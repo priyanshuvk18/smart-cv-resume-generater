@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartCV Builder - Industrial Level CV Maker</title>
+    <!-- Same head as layout for index -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #2b2d42;
+            --light-bg: #f8f9fa;
+        }
+        body { font-family: 'Outfit', sans-serif; background-color: var(--light-bg); }
+        .hero { padding: 100px 0; background: linear-gradient(135deg, #fff 0%, #eef2ff 100%); }
+        .feature-card { border: none; border-radius: 20px; padding: 40px; text-align: center; transition: all 0.3s ease; height: 100%; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); }
+        .feature-icon { font-size: 3rem; color: var(--primary-color); margin-bottom: 25px; }
+        .btn-primary { background-color: var(--primary-color); border: none; padding: 12px 30px; border-radius: 10px; font-weight: 600; }
+        .btn-outline-primary { border-color: var(--primary-color); color: var(--primary-color); border-radius: 10px; padding: 12px 30px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{layout :: navbar}"></div>
+
+<header class="hero">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8" data-aos="fade-up">
+                <h1 class="display-3 fw-bold mb-4" style="color: var(--dark-color);">Build Your Next Professional <span style="color: var(--primary-color);">CV at 10x Speed</span></h1>
+                <p class="lead text-muted mb-5">Create an industrial-level resume with our smart builder. Choose from professional templates, track your progress, and download as PDF instantly.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a th:href="@{/register}" class="btn btn-primary btn-lg px-5 shadow">Get Started Now</a>
+                    <a href="#features" class="btn btn-outline-primary btn-lg px-5">View Templates</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section id="features" class="py-5 mt-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold h1">Why Modern Professionals <br> Choose SmartCV</h2>
+        </div>
+        <div class="row g-4 mt-4">
+            <div class="col-md-4">
+                <div class="feature-card bg-white">
+                    <div class="feature-icon"><i class="fas fa-magic"></i></div>
+                    <h4 class="fw-bold mb-3">AI Formatting</h4>
+                    <p class="text-muted">No more struggling with margins and fonts. Our algorithm handles formatting automatically.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card bg-white">
+                    <div class="feature-icon"><i class="fas fa-file-pdf"></i></div>
+                    <h4 class="fw-bold mb-3">Instant PDF</h4>
+                    <p class="text-muted">Download high-quality, professional PDFs ready for any applicant tracking system.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card bg-white">
+                    <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
+                    <h4 class="fw-bold mb-3">3D Templates</h4>
+                    <p class="text-muted">Choose from Modern, Classic, and Creative layouts tailored for every industry.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{layout :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        @page { size: A4; margin: 20mm; }
+        body { font-family: 'Times New Roman', serif; color: #000; line-height: 1.4; font-size: 11pt; padding: 20px; }
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+        .name { font-size: 24pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        .contact-info { font-size: 10pt; margin-top: 5px; }
+        .section-header { font-size: 12pt; font-weight: bold; text-transform: uppercase; background: #f0f0f0; padding: 5px 10px; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #000; }
+        .item-row { margin-bottom: 15px; }
+        .item-title { font-weight: bold; font-size: 11pt; display: flex; justify-content: space-between; }
+        .item-subtitle { font-style: italic; color: #444; font-size: 10pt; }
+        .item-desc { margin-top: 5px; text-align: justify; font-size: 10pt; }
+        .skills-list { columns: 3; -webkit-columns: 3; -moz-columns: 3; list-style-type: none; padding: 0; }
+        .skill-li { font-size: 10pt; margin-bottom: 5px; }
+        .summary { font-size: 10pt; margin-bottom: 15px; text-align: justify; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="name" th:text="${cv.fullName}">JOHN DOE</div>
+        <div class="contact-info">
+            <span th:text="${cv.address}">Location</span> | 
+            <span th:text="${cv.phone}">+1 234 567 890</span> | 
+            <span th:text="${cv.email}">email@example.com</span>
+        </div>
+    </div>
+
+    <div class="section-header">Professional Summary</div>
+    <div class="summary" th:text="${cv.summary}">Summary text...</div>
+
+    <div class="section-header">Experience</div>
+    <div th:each="exp : ${cv.experience}" class="item-row">
+        <div class="item-title">
+            <span th:text="${exp.company + ' | ' + exp.position}">COMPANY | POSITION</span>
+            <span th:text="${exp.startDate + ' - ' + exp.endDate}">2020 - 2024</span>
+        </div>
+        <div class="item-subtitle" th:text="${exp.location}">Location</div>
+        <div class="item-desc" th:text="${exp.description}">Description...</div>
+    </div>
+
+    <div class="section-header">Education</div>
+    <div th:each="edu : ${cv.education}" class="item-row">
+        <div class="item-title">
+            <span th:text="${edu.school}">UNIVERSITY</span>
+            <span th:text="${edu.startDate + ' - ' + edu.endDate}">2016-2020</span>
+        </div>
+        <div class="item-subtitle" th:text="${edu.degree + ' in ' + edu.fieldOfStudy}">DEGREE</div>
+        <div class="item-desc" th:text="${edu.description}">Details...</div>
+    </div>
+
+    <div class="section-header">Skills</div>
+    <ul class="skills-list">
+        <li th:each="skill : ${cv.skills}" class="skill-li" th:text="${skill.name + ' (' + skill.level + ')'}">Java</li>
+    </ul>
+
+    <div th:if="${not #lists.isEmpty(cv.projects)}" class="section-header">Projects</div>
+    <div th:each="proj : ${cv.projects}" class="item-row">
+        <div class="item-title" th:text="${proj.title}">PROJECT TITLE</div>
+        <div class="item-desc" th:text="${proj.description}">Description...</div>
+    </div>
+</body>
+</html>

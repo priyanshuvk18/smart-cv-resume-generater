@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create/Edit CV - SmartCV Builder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary-color: #4361ee; --light-bg: #f8f9fa; }
+        body { font-family: 'Outfit', sans-serif; background-color: var(--light-bg); }
+        .form-section { background: #fff; border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .section-title { border-left: 4px solid var(--primary-color); padding-left: 15px; margin-bottom: 25px; font-weight: 700; color: #2b2d42; }
+        .repeater-item { position: relative; padding: 20px; border: 1px dashed #dee2e6; border-radius: 10px; margin-bottom: 20px; }
+        .btn-remove { position: absolute; top: 10px; right: 10px; color: #dc3545; cursor: pointer; }
+        .btn-add { color: var(--primary-color); cursor: pointer; font-weight: 600; }
+        .sticky-summary { position: sticky; top: 100px; }
+        .template-preview { height: 120px; border: 2px solid #eee; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden; }
+        .template-radio:checked + .template-preview { border-color: var(--primary-color); background: #f0f3ff; }
+        .template-radio { display: none; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{layout :: navbar}"></div>
+
+<div class="container py-5">
+    <form id="cvForm">
+        <input type="hidden" id="cvId" th:value="${cv != null ? cv.id : ''}">
+        
+        <div class="row">
+            <!-- Left Column: Form Sections -->
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold"><i class="fas fa-magic me-2 text-primary"></i> <span th:text="${cv == null ? 'Create New' : 'Edit'}">Create New</span> CV</h2>
+                    <a href="/dashboard" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i> Back</a>
+                </div>
+
+                <!-- Template Selection -->
+                <div class="form-section">
+                    <h5 class="section-title">Step 1: Choose Template</h5>
+                    <div class="row">
+                        <div class="col-md-4" th:each="tpl : ${templates}">
+                            <label class="w-100">
+                                <input type="radio" name="templateId" class="template-radio" th:value="${tpl.id}" th:checked="${cv != null && cv.templateId == tpl.id}">
+                                <div class="template-preview">
+                                    <span th:text="${tpl.name}">Modern</span>
+                                </div>
+                                <div class="text-center small fw-bold" th:text="${tpl.name}">Modern</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Info -->
+                <div class="form-section">
+                    <h5 class="section-title">Step 2: Personal Information</h5>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">CV Title</label>
+                        <input type="text" id="title" class="form-control" placeholder="e.g. Senior Java Developer" th:value="${cv != null ? cv.title : ''}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">Full Name</label>
+                            <input type="text" id="fullName" class="form-control" th:value="${cv != null ? cv.fullName : ''}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">Professional Email</label>
+                            <input type="email" id="email" class="form-control" th:value="${cv != null ? cv.email : ''}" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">Phone Number</label>
+                            <input type="text" id="phone" class="form-control" th:value="${cv != null ? cv.phone : ''}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">Location / Address</label>
+                            <input type="text" id="address" class="form-control" th:value="${cv != null ? cv.address : ''}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Professional Summary</label>
+                        <textarea id="summary" class="form-control" rows="4" placeholder="Briefly describe your expertise..." th:text="${cv != null ? cv.summary : ''}"></textarea>
+                    </div>
+                </div>
+
+                <!-- Education -->
+                <div class="form-section" id="educationSection">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="section-title">Step 3: Education</h5>
+                        <span class="btn-add" onclick="addEducation()"><i class="fas fa-plus"></i> Add Another</span>
+                    </div>
+                    <div id="educationList">
+                        <!-- Education items will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Experience -->
+                <div class="form-section" id="experienceSection">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="section-title">Step 4: Work Experience</h5>
+                        <span class="btn-add" onclick="addExperience()"><i class="fas fa-plus"></i> Add Another</span>
+                    </div>
+                    <div id="experienceList">
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="form-section">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="section-title">Step 5: Professional Skills</h5>
+                        <span class="btn-add" onclick="addSkill()"><i class="fas fa-plus"></i> Add Skill</span>
+                    </div>
+                    <div class="row g-3" id="skillList">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Final Actions -->
+            <div class="col-lg-4">
+                <div class="sticky-summary">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-4">CV Status</h5>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold d-block">Completion Status</label>
+                            <select id="status" class="form-select">
+                                <option value="DRAFT" th:selected="${cv != null && cv.status == 'DRAFT'}">Draft</option>
+                                <option value="COMPLETED" th:selected="${cv != null && cv.status == 'COMPLETED'}">Ready to Download</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 shadow">
+                            <i class="fas fa-save me-2"></i> Save Changes
+                        </button>
+                        <p class="text-center text-muted x-small">Last saved: <span id="lastSaved">Never</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Repeater Templates -->
+<template id="educationTemplate">
+    <div class="repeater-item animate__animated animate__fadeIn">
+        <i class="fas fa-trash btn-remove" onclick="this.parentElement.remove()"></i>
+        <div class="row g-3">
+            <div class="col-md-6"><input type="text" class="form-control edu-school" placeholder="University/School" required></div>
+            <div class="col-md-6"><input type="text" class="form-control edu-degree" placeholder="Degree (e.g. B.Tech)"></div>
+            <div class="col-md-6"><input type="text" class="form-control edu-field" placeholder="Field of Study"></div>
+            <div class="col-md-3"><input type="text" class="form-control edu-start" placeholder="Start Date"></div>
+            <div class="col-md-3"><input type="text" class="form-control edu-end" placeholder="End Date"></div>
+            <div class="col-12"><textarea class="form-control edu-desc" rows="2" placeholder="Major achievements..."></textarea></div>
+        </div>
+    </div>
+</template>
+
+<template id="experienceTemplate">
+    <div class="repeater-item">
+        <i class="fas fa-trash btn-remove" onclick="this.parentElement.remove()"></i>
+        <div class="row g-3">
+            <div class="col-md-6"><input type="text" class="form-control exp-company" placeholder="Company Name" required></div>
+            <div class="col-md-6"><input type="text" class="form-control exp-pos" placeholder="Job Title"></div>
+            <div class="col-md-6"><input type="text" class="form-control exp-loc" placeholder="Location"></div>
+            <div class="col-md-3"><input type="text" class="form-control exp-start" placeholder="Start Date"></div>
+            <div class="col-md-3"><input type="text" class="form-control exp-end" placeholder="End Date/Present"></div>
+            <div class="col-12"><textarea class="form-control exp-desc" rows="3" placeholder="Key responsibilities..."></textarea></div>
+        </div>
+    </div>
+</template>
+
+<template id="skillTemplate">
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" class="form-control skill-name" placeholder="Skill Name">
+            <select class="form-select skill-level">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate" selected>Intermediate</option>
+                <option value="Expert">Expert</option>
+            </select>
+            <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.parentElement.remove()"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+</template>
+
+<script th:inline="javascript">
+    const cvData = [[${cv}]];
+
+    function addEducation(data = {}) {
+        const temp = document.getElementById('educationTemplate').content.cloneNode(true);
+        if (data.school) temp.querySelector('.edu-school').value = data.school;
+        if (data.degree) temp.querySelector('.edu-degree').value = data.degree;
+        if (data.fieldOfStudy) temp.querySelector('.edu-field').value = data.fieldOfStudy;
+        if (data.startDate) temp.querySelector('.edu-start').value = data.startDate;
+        if (data.endDate) temp.querySelector('.edu-end').value = data.endDate;
+        if (data.description) temp.querySelector('.edu-desc').value = data.description;
+        document.getElementById('educationList').appendChild(temp);
+    }
+
+    function addExperience(data = {}) {
+        const temp = document.getElementById('experienceTemplate').content.cloneNode(true);
+        if (data.company) temp.querySelector('.exp-company').value = data.company;
+        if (data.position) temp.querySelector('.exp-pos').value = data.position;
+        if (data.location) temp.querySelector('.exp-loc').value = data.location;
+        if (data.startDate) temp.querySelector('.exp-start').value = data.startDate;
+        if (data.endDate) temp.querySelector('.exp-end').value = data.endDate;
+        if (data.description) temp.querySelector('.exp-desc').value = data.description;
+        document.getElementById('experienceList').appendChild(temp);
+    }
+
+    function addSkill(data = {}) {
+        const temp = document.getElementById('skillTemplate').content.cloneNode(true);
+        if (data.name) temp.querySelector('.skill-name').value = data.name;
+        if (data.level) temp.querySelector('.skill-level').value = data.level;
+        document.getElementById('skillList').appendChild(temp);
+    }
+
+    // Populate data if editing
+    if (cvData) {
+        if (cvData.education) cvData.education.forEach(addEducation);
+        if (cvData.experience) cvData.experience.forEach(addExperience);
+        if (cvData.skills) cvData.skills.forEach(addSkill);
+    } else {
+        // Add defaults
+        addEducation();
+        addExperience();
+        addSkill();
+        addSkill();
+    }
+
+    document.getElementById('cvForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        
+        const payload = {
+            id: document.getElementById('cvId').value || null,
+            templateId: document.querySelector('input[name="templateId"]:checked').value,
+            title: document.getElementById('title').value,
+            fullName: document.getElementById('fullName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            address: document.getElementById('address').value,
+            summary: document.getElementById('summary').value,
+            status: document.getElementById('status').value,
+            education: Array.from(document.querySelectorAll('#educationList .repeater-item')).map(item => ({
+                school: item.querySelector('.edu-school').value,
+                degree: item.querySelector('.edu-degree').value,
+                fieldOfStudy: item.querySelector('.edu-field').value,
+                startDate: item.querySelector('.edu-start').value,
+                endDate: item.querySelector('.edu-end').value,
+                description: item.querySelector('.edu-desc').value
+            })),
+            experience: Array.from(document.querySelectorAll('#experienceList .repeater-item')).map(item => ({
+                company: item.querySelector('.exp-company').value,
+                position: item.querySelector('.exp-pos').value,
+                location: item.querySelector('.exp-loc').value,
+                startDate: item.querySelector('.exp-start').value,
+                endDate: item.querySelector('.exp-end').value,
+                description: item.querySelector('.exp-desc').value
+            })),
+            skills: Array.from(document.querySelectorAll('#skillList > .col-md-6')).map(item => ({
+                name: item.querySelector('.skill-name').value,
+                level: item.querySelector('.skill-level').value
+            }))
+        };
+
+        try {
+            const response = await fetch('/api/cv/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert('CV Saved Successfully!');
+                window.location.href = '/dashboard';
+            } else {
+                alert('Failed to save CV. Please check if you are logged in.');
+            }
+        } catch (error) {
+            console.error('Save error:', error);
+            alert('Server error while saving CV.');
+        }
+    });
+
+</script>
+
+<div th:replace="~{layout :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.5; font-size: 11pt; }
+        .container { width: 100%; display: table; }
+        .sidebar { width: 33%; background-color: #2c3e50; color: #fff; padding: 40px 25px; height: 100vh; }
+        .main { padding: 40px; }
+        .name { font-size: 28pt; font-weight: bold; margin-bottom: 5px; color: #2c3e50; text-transform: uppercase; }
+        .title { font-size: 14pt; color: #34495e; margin-bottom: 20px; font-weight: 500; }
+        .sidebar h3 { font-size: 12pt; border-bottom: 1px solid #444; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; color: #ecf0f1; text-transform: uppercase; }
+        .section-title { font-size: 14pt; font-weight: bold; color: #2c3e50; border-bottom: 2px solid #2c3e50; margin-top: 30px; margin-bottom: 15px; text-transform: uppercase; }
+        .contact p { margin-bottom: 8px; font-size: 9pt; }
+        .contact i { margin-right: 10px; width: 15px; }
+        .skill-item { margin-bottom: 10px; }
+        .skill-name { font-weight: bold; font-size: 9pt; margin-bottom: 3px; }
+        .skill-level { height: 4px; background: #444; border-radius: 2px; }
+        .skill-progress { height: 100%; background: #3498db; border-radius: 2px; }
+        .edu-item, .exp-item, .proj-item { margin-bottom: 20px; }
+        .item-header { font-weight: bold; color: #2c3e50; display: flex; justify-content: space-between; align-items: baseline; }
+        .item-sub { font-style: italic; color: #7f8c8d; font-size: 10pt; margin-bottom: 5px; }
+        .description { font-size: 10pt; text-align: justify; }
+        .summary-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table>
+            <tr>
+                <td class="sidebar" valign="top">
+                    <!-- Photo Placeholder if we had it working in PDF easily -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <img th:if="${cv.profileImagePath != null}" th:src="${cv.profileImagePath}" style="width: 150px; height: 150px; border-radius: 50%; border: 5px solid #34495e;">
+                    </div>
+                    
+                    <h3>Contact</h3>
+                    <div class="contact">
+                        <p><i class="fas fa-envelope"></i> <span th:text="${cv.email}">email@example.com</span></p>
+                        <p><i class="fas fa-phone"></i> <span th:text="${cv.phone}">+1 234 567 890</span></p>
+                        <p><i class="fas fa-map-marker-alt"></i> <span th:text="${cv.address}">City, Country</span></p>
+                    </div>
+
+                    <h3>Skills</h3>
+                    <div th:each="skill : ${cv.skills}" class="skill-item">
+                        <div class="skill-name" th:text="${skill.name}">Java</div>
+                        <div class="skill-level">
+                            <div class="skill-progress" th:style="'width: ' + (skill.level == 'Expert' ? '100' : (skill.level == 'Intermediate' ? '70' : '40')) + '%'"></div>
+                        </div>
+                    </div>
+
+                    <h3>Certifications</h3>
+                    <div th:each="cert : ${cv.certifications}" style="margin-bottom: 15px;">
+                        <div style="font-weight: bold; font-size: 9pt;" th:text="${cert.name}">AWS Certified</div>
+                        <div style="font-size: 8pt; color: #bdc3c7;" th:text="${cert.issuer + ' | ' + cert.date}">Amazon</div>
+                    </div>
+                </td>
+                <td class="main" valign="top">
+                    <div class="name" th:text="${cv.fullName}">John Doe</div>
+                    <div class="title" th:text="${cv.title}">Senior Software Architect</div>
+                    
+                    <div class="summary-box" th:text="${cv.summary}">Summary text goes here...</div>
+
+                    <div class="section-title">Experience</div>
+                    <div th:each="exp : ${cv.experience}" class="exp-item">
+                        <div class="item-header">
+                            <span th:text="${exp.position}">Software Engineer</span>
+                            <span style="font-size: 9pt; color: #7f8c8d; font-weight: normal;" th:text="${exp.startDate + ' - ' + exp.endDate}">2020 - Present</span>
+                        </div>
+                        <div class="item-sub" th:text="${exp.company + ' | ' + exp.location}">Company Name | Location</div>
+                        <div class="description" th:text="${exp.description}">Responsibilities...</div>
+                    </div>
+
+                    <div class="section-title">Education</div>
+                    <div th:each="edu : ${cv.education}" class="edu-item">
+                        <div class="item-header">
+                            <span th:text="${edu.degree + ' in ' + edu.fieldOfStudy}">B.Tech Computer Science</span>
+                            <span style="font-size: 9pt; color: #7f8c8d; font-weight: normal;" th:text="${edu.startDate + ' - ' + edu.endDate}">2016 - 2020</span>
+                        </div>
+                        <div class="item-sub" th:text="${edu.school}">University Name</div>
+                        <div class="description" th:text="${edu.description}">Major achievements...</div>
+                    </div>
+
+                    <div class="section-title">Projects</div>
+                    <div th:each="proj : ${cv.projects}" class="proj-item">
+                        <div class="item-header" th:text="${proj.title}">Project Title</div>
+                        <div class="description" th:text="${proj.description}">Project details...</div>
+                        <div th:if="${proj.link != null}" style="font-size: 8pt; color: #3498db; margin-top: 3px;" th:text="${proj.link}">Link</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
